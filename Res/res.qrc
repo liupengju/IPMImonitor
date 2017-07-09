@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>unactive/property.png</file>
+        <file>active/property.png</file>
+        <file>icon.bmp</file>
+        <file>active/new.png</file>
+        <file>unactive/new.png</file>
+        <file>active/back.png</file>
+        <file>active/copy.png</file>
+        <file>active/del.png</file>
+        <file>active/refresh.png</file>
+        <file>unactive/back.png</file>
+        <file>unactive/copy.png</file>
+        <file>unactive/del.png</file>
+        <file>unactive/refresh.png</file>
+    </qresource>
+</RCC>
