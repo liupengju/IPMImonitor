@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "newcntdialog.h"
 #include <QDebug>
+#include <QTableWidgetItem>
 
 namespace Ui {
 class loginDialog;
@@ -19,10 +20,12 @@ public:
 
 private:
     Ui::loginDialog *ui;
+    newCntDialog *cntDlg;
     void setupUI();
 
 private slots:
     void newConnectter();
+    void addHost();
     void on_closeBtn_clicked();
 };
 

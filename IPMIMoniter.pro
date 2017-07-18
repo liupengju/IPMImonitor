@@ -11,6 +11,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = IPMIMoniter
 TEMPLATE = app
 
+LIBS+= -LD:/0pro_Software/MinGW/3rdLib/libssh2/libcurl/lib/  -lssh2 -lcurl -lws2_32 -lwldap32 -lssl -lcrypto -lz
+INCLUDEPATH += D:/0pro_Software/MinGW/3rdLib/libssh2/libcurl/include
+INCLUDEPATH += D:/0pro_Software/MinGW/3rdLib/libssh2/libcurl/include/openssl
+INCLUDEPATH += D:/0pro_Software/MinGW/3rdLib/libssh2/libcurl/include/curl
+
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -27,12 +33,14 @@ SOURCES += main.cpp\
         monitor.cpp \
     logindialog.cpp \
     newcntdialog.cpp \
-    global.cpp
+    global.cpp \
+    qtssh.cpp
 
 HEADERS  += monitor.h \
     logindialog.h \
     newcntdialog.h \
-    global.h
+    global.h \
+    qtssh.h
 
 FORMS    += monitor.ui \
     logindialog.ui \

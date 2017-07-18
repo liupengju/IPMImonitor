@@ -18,8 +18,14 @@ class newCntDialog : public QDialog
 public:
     explicit newCntDialog(QWidget *parent = 0);
     ~newCntDialog();
+    QString getName(){return mName;}
+    QString getHost(){return mHost;}
+    QString getPort(){return mPort;}
+    QString getProtol(){return mProtol;}
+    QString getUser(){return mUserName;}
 
 private slots:
+
     void on_exitBtn_clicked();
     void on_ensureBtn_clicked();
 
@@ -28,9 +34,11 @@ private:
     QString mName;
     QString mHost;
     QString mProtol;
-    QString port;
+    QString mPort;
     QString mUserName;
     QString mPasswd;
+signals:
+    void hostAdded();
 };
 
 #endif // NEWCNTDIALOG_H

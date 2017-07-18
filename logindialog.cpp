@@ -45,11 +45,23 @@ void loginDialog::setupUI()
 void loginDialog::newConnectter()
 {
     qDebug()<<"newConnectter";
-    newCntDialog *cntDlg = new newCntDialog(this);
+    cntDlg = new newCntDialog(this);
+    connect(cntDlg,SIGNAL(hostAdded()),this,SLOT(addHost()));
     cntDlg->show();
 }
 
 void loginDialog::on_closeBtn_clicked()
 {
     this->close();
+}
+
+void loginDialog::addHost()
+{
+    int currentRow = ui->hostListWidget->rowCount();
+    ui->hostListWidget->insertRow(currentRow);
+    ui->hostListWidget->setItem(currentRow,0,new QTableWidgetItem(cntDlg->getName()));
+    ui->hostListWidget->setItem(currentRow,1,new QTableWidgetItem(cntDlg->getHost()));
+    ui->hostListWidget->setItem(currentRow,2,new QTableWidgetItem(cntDlg->getPort()));
+    ui->hostListWidget->setItem(currentRow,3,new QTableWidgetItem(cntDlg->getProtol()));
+    ui->hostListWidget->setItem(currentRow,4,new QTableWidgetItem(cntDlg->getUser()));
 }

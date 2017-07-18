@@ -29,9 +29,9 @@ void newCntDialog::on_ensureBtn_clicked()
     {
         QMessageBox::warning(this,"Warning","除密码外\n所有选项不能为空",QMessageBox::Ok|QMessageBox::No,QMessageBox::Ok);
     }
-    //保存配置信息到xml文件[F:\\SystemFile\\Documents\\IPMIMoniter\\config\\host.xml]
+    //保存配置信息到xml文件[G:\github\IPMImonitor\config\host.xml]
     QXmlStreamWriter xml;
-    QFile file("F:\\SystemFile\\Documents\\IPMIMoniter\\config\\host.xml");
+    QFile file("G:\github\IPMImonitor\config\host.xml");
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
         qDebug()<<QString("Cannot write file.");
@@ -50,13 +50,15 @@ void newCntDialog::on_ensureBtn_clicked()
     xml.writeAttribute("user",ui->userEdit->text());
     xml.writeAttribute("passwd",ui->passwdEdit->text());
     xml.writeEndDocument();
-    //跟新主机列表信息
+
+    //更新主机列表信息
     this->mName = ui->nameEdit->text();
     this->mHost = ui->hostEdit->text();
-    this->port = ui->portEdit->text();
+    this->mPort = ui->portEdit->text();
     this->mProtol = ui->protocolCom->currentText();
     this->mUserName = ui->userEdit->text();
     this->mPasswd = ui->passwdEdit->text();
+    emit hostAdded();
 
-    this->close();
+    //this->close();
 }
