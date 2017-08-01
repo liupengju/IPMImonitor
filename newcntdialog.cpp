@@ -29,28 +29,6 @@ void newCntDialog::on_ensureBtn_clicked()
     {
         QMessageBox::warning(this,"Warning","除密码外\n所有选项不能为空",QMessageBox::Ok|QMessageBox::No,QMessageBox::Ok);
     }
-    //保存配置信息到xml文件[G:\github\IPMImonitor\config\host.xml]
-    QXmlStreamWriter xml;
-    QFile file("G:\github\IPMImonitor\config\host.xml");
-    if (!file.open(QFile::WriteOnly | QFile::Text))
-    {
-        qDebug()<<QString("Cannot write file.");
-        return ;
-    }
-    xml.setDevice(&file);
-    xml.setAutoFormatting(true);
-    xml.writeStartDocument();
-    xml.writeStartElement("Root");
-
-    xml.writeStartElement("Host");
-    xml.writeAttribute("name",ui->nameEdit->text());
-    xml.writeAttribute("host",ui->hostEdit->text());
-    xml.writeAttribute("port",ui->hostEdit->text());
-    xml.writeAttribute("protol",ui->protocolCom->currentText());
-    xml.writeAttribute("user",ui->userEdit->text());
-    xml.writeAttribute("passwd",ui->passwdEdit->text());
-    xml.writeEndDocument();
-
     //更新主机列表信息
     this->mName = ui->nameEdit->text();
     this->mHost = ui->hostEdit->text();

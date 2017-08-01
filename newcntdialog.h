@@ -23,6 +23,7 @@ public:
     QString getPort(){return mPort;}
     QString getProtol(){return mProtol;}
     QString getUser(){return mUserName;}
+    QString getpswd(){return mPasswd;}
 
 private slots:
 

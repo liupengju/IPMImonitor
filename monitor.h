@@ -14,6 +14,7 @@ class Monitor : public QMainWindow
 
 public:
     explicit Monitor(QWidget *parent = 0);
+    int setWindowLayout();
     ~Monitor();
 
 
@@ -21,6 +22,9 @@ public:
 private:
     Ui::Monitor *ui;
     loginDialog *logDlg;
+
+private slots:
+    int showCmdTextEdit();
 
 };
 
