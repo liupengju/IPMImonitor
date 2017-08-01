@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+    <Host name="192.168.100.175" host="192.168.200.275" port="22" protol="ssh" user="liupengju" passwd="408743"/>
+    <Host name="192.168.100.175" host="192.168.200.275" port="22" protol="ssh" user="liupengju" passwd="408743"/>
+    <Host name="192.168.100.175" host="192.168.200.275" port="22" protol="ssh" user="liupengju" passwd="408743"/>
+</Root>
+
