@@ -113,17 +113,6 @@ void loginDialog::addHost()
     ui->hostListWidget->setItem(currentRow,4,new QTableWidgetItem(cntDlg->getUser()));
 }
 
-void loginDialog::on_hostListWidget_clicked(const QModelIndex &index)
-{
-    int row = index.row();
-    QString host = ui->hostListWidget->item(row,0)->text();
-    QString name = ui->hostListWidget->item(row,1)->text();
-    QString port = ui->hostListWidget->item(row,2)->text();
-    QString prot = ui->hostListWidget->item(row,3)->text();
-    QString user = ui->hostListWidget->item(row,4)->text();
-    qDebug()<<host<<name<<port<<prot<<user;
-}
-
 /**
  * @brief loginDialog::addHostToFile
  * @
@@ -229,4 +218,57 @@ int loginDialog::getExistHost()
     }
     file.close();
     xmlReader.clear();
+}
+
+void loginDialog::on_connectBtn_clicked()
+{
+   //获取当前选中host信息
+    QMap<QString,QString> hostItem;
+    const QList <QTableWidgetItem *> list = ui->hostListWidget->selectedItems();
+    if(list.isEmpty())
+    {
+        return ;
+    }
+    hostItem["name"] = list[0]->text();
+    hostItem["host"] = list[1]->text();
+    hostItem["port"] = list[2]->text();
+    hostItem["prto"] = list[3]->text();
+    hostItem["user"] = list[4]->text();
+    for(int i = 0; i<mHostList.size();i++)
+    {
+        if(mHostList[i]["name"] == hostItem["name"])
+        {
+            hostItem["pswd"] = mHostList[i]["pswd"];
+        }
+    }
+    qDebug()<<"emit signal readyConnectHost";
+    emit readyConnectHost(hostItem);
+}
+
+void loginDialog::on_hostListWidget_doubleClicked(const QModelIndex &index)
+{
+    QMap<QString,QString> hostItem;
+
+    int row = index.row();
+    QString name = ui->hostListWidget->item(row,0)->text();
+    QString host = ui->hostListWidget->item(row,1)->text();
+    QString port = ui->hostListWidget->item(row,2)->text();
+    QString prot = ui->hostListWidget->item(row,3)->text();
+    QString user = ui->hostListWidget->item(row,4)->text();
+
+    hostItem["name"] = name;
+    hostItem["host"] = host;
+    hostItem["port"] = port;
+    hostItem["prto"] = prot;
+    hostItem["user"] = user;
+    for(int i = 0; i<mHostList.size();i++)
+    {
+        if(mHostList[i]["name"] == hostItem["name"])
+        {
+            hostItem["pswd"] = mHostList[i]["pswd"];
+        }
+    }
+
+    qDebug()<<host<<name<<port<<prot<<user<<hostItem["pswd"];
+    emit readyConnectHost(hostItem);
 }

@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <logindialog.h>
+#include "qtssh.h"
+#include <QMap>
+#include <QVector>
+#include <QDebug>
 
 namespace Ui {
 class Monitor;
@@ -22,9 +26,11 @@ public:
 private:
     Ui::Monitor *ui;
     loginDialog *logDlg;
+    QVector<QtSsh*> sessionList;
 
 private slots:
     int showCmdTextEdit();
+    int newConnecter(QMap<QString,QString>);
 
 };
 

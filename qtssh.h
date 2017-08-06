@@ -65,10 +65,11 @@ public:
     int setPasswd(const char* passwd);
 
 public:
-    const char *mHost = "192.168.0.131";
+    const char *mHost;
     int mPort = 22;
-    const char *mUsername = "liupengju";
-    const char *mPassword = "408743";
+    const char *mUsername;
+    const char *mPassword;
+    QString mLastError;
     //保存命令在远端执行成功的结果返回
     QString mReceived;
     //保存命令在远端执行失败的结果返回

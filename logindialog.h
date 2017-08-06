@@ -37,8 +37,12 @@ private slots:
     void newConnectter();
     void addHost();
     void on_closeBtn_clicked();
-    void on_hostListWidget_clicked(const QModelIndex &index);
     int refreshUI();
+    void on_connectBtn_clicked();
+    void on_hostListWidget_doubleClicked(const QModelIndex &index);
+
+signals:
+    readyConnectHost(QMap<QString,QString>);
 };
 
 #endif // LOGINDIALOG_H
