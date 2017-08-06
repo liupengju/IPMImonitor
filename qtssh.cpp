@@ -9,6 +9,7 @@ QtSsh::QtSsh(const char *host, int port)
 {
     mHost = host;
     mPort = port;
+    mLastError = "";
 }
 
 int QtSsh::setSocketVersion()
@@ -17,20 +18,21 @@ int QtSsh::setSocketVersion()
     int err = WSAStartup(MAKEWORD(2,0), &wsadata);
     if (err != 0)
     {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+        mLastError = QString("WSAStartup failed with error: %1").arg(err);
         return 1;
     }
 }
 
 int QtSsh::connectSSH()
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     unsigned long hostaddr;
     struct sockaddr_in sin;
     int rc;
 
     rc = libssh2_init (0);
     if (rc != 0) {
-        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        mLastError =  QString("libssh2 initialization failed (%1)").arg(rc);
         return 1;
     }
     hostaddr = inet_addr(mHost);
@@ -41,7 +43,7 @@ int QtSsh::connectSSH()
     sin.sin_addr.s_addr = hostaddr;
     if (connect(mSock, (struct sockaddr*)(&sin),
                 sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "failed to connect!\n");
+        mLastError =  QString("failed to connect!\n");
         return -1;
     }
     return 0;
@@ -49,6 +51,7 @@ int QtSsh::connectSSH()
 
 int QtSsh::sessionInit()
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     int rc = 0;
     mSession = libssh2_session_init();
 
@@ -65,13 +68,15 @@ int QtSsh::sessionInit()
     while ((rc = libssh2_session_handshake(mSession, mSock)) == LIBSSH2_ERROR_EAGAIN);
     if (rc)
     {
-        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+        mLastError = QString("Failure establishing SSH session: %1").arg(rc);
         return -1;
     }
+    return 0;
 }
 
 int QtSsh::authenticateHost()
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     const char *fingerprint;
     int rc;
     LIBSSH2_KNOWNHOSTS *nh;
@@ -81,6 +86,7 @@ int QtSsh::authenticateHost()
     nh = libssh2_knownhost_init(mSession);
     if(!nh)
     {
+        mLastError = QString("libssh2_knownhost_init error");
         /* eeek, do cleanup here */
         return 2;
     }
@@ -102,9 +108,7 @@ int QtSsh::authenticateHost()
                                              LIBSSH2_KNOWNHOST_KEYENC_RAW,
                                              &host);
 
-        fprintf(stderr, "Host check: %d, key: %s\n", check,
-                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
-                    host->key:"<none>");
+        mLastError = QString("Host check: %1, key: %2\n").arg(check).arg((check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)? host->key:"<none>");
 
         /*****
          * At this point, we could verify that 'check' tells us the key is
@@ -121,36 +125,36 @@ int QtSsh::authenticateHost()
     if ( strlen(mPassword) != 0 )
     {
         /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(mSession, mUsername, mPassword)) ==
-
-               LIBSSH2_ERROR_EAGAIN);
-        if (rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+        qDebug()<<mUsername<<mPassword;
+        while ((rc = libssh2_userauth_password(mSession, mUsername, mPassword)) ==  LIBSSH2_ERROR_EAGAIN);
+        if (rc)
+        {
+            mLastError = QString("Authentication by password failed.");
             clearShhSource();
+            return 1;
         }
     }
     else
     {
         /* Or by public key */
         while ((rc = libssh2_userauth_publickey_fromfile(mSession, mUsername,
-
-                                                         "/home/user/"
-                                                         ".ssh/id_rsa.pub",
-                                                         "/home/user/"
-                                                         ".ssh/id_rsa",
-                                                         mPassword)) ==
-               LIBSSH2_ERROR_EAGAIN);
+                                                         "/home/user/" ".ssh/id_rsa.pub",
+                                                         "/home/user/" ".ssh/id_rsa",
+                                                         mPassword)) == LIBSSH2_ERROR_EAGAIN);
         if (rc)
         {
-            fprintf(stderr, "\tAuthentication by public key failed\n");
+            mLastError = QString("\tAuthentication by public key failed");
             clearShhSource();
+            return -1;
         }
     }
+    return 0;
 }
 
 
 int QtSsh::clearShhSource()
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     libssh2_session_disconnect(mSession,"Normal Shutdown, Thank you for playing");
     libssh2_session_free(mSession);
     closesocket(mSock);
@@ -160,6 +164,7 @@ int QtSsh::clearShhSource()
 
 int QtSsh::execCmd(const char *commandline)
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     LIBSSH2_CHANNEL *channel;
     int rc;
     mExitsignal=(char *)"none";
@@ -175,8 +180,8 @@ int QtSsh::execCmd(const char *commandline)
     }
     if( channel == NULL )
     {
-        fprintf(stderr,"Error\n");
-        exit( 1 );
+        mLastError = QString("libssh2_channel_open_session Error");
+        return( 1 );
     }
     while( (rc = libssh2_channel_exec(channel, commandline)) == LIBSSH2_ERROR_EAGAIN )
     {
@@ -184,8 +189,8 @@ int QtSsh::execCmd(const char *commandline)
     }
     if( rc != 0 )
     {
-        fprintf(stderr,"Error\n");
-        exit( 1 );
+        QString("libssh2_channel_exec Error");
+        return( 1 );
     }
     for( ;; )
     {
@@ -205,7 +210,7 @@ int QtSsh::execCmd(const char *commandline)
             else
             {
                 if( rc != LIBSSH2_ERROR_EAGAIN )
-                    fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
+                    mLastError = QString("libssh2_channel_read returned %1\n").arg(rc);
             }
             if( errRc > 0 )
             {
@@ -214,7 +219,7 @@ int QtSsh::execCmd(const char *commandline)
             else
             {
                 if( rc != LIBSSH2_ERROR_EAGAIN )
-                    fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
+                    mLastError = QString("libssh2_channel_read returned %1").arg(rc);
             }
         }
         while( rc > 0 );
@@ -222,9 +227,7 @@ int QtSsh::execCmd(const char *commandline)
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
         if( rc == LIBSSH2_ERROR_EAGAIN )
-        {
             waitSocket();
-        }
         else
             break;
     }
@@ -237,19 +240,15 @@ int QtSsh::execCmd(const char *commandline)
         mExitcode = libssh2_channel_get_exit_status( channel );
         libssh2_channel_get_exit_signal(channel, &mExitsignal,NULL, NULL, NULL, NULL, NULL);
     }
-/*
-    if (mExitsignal)
-        fprintf(stderr, "\nGot signal: %s\n", mExitsignal);
-    else
-        fprintf(stderr, "\nEXIT: %d bytecount: %d\n", mExitcode, bytecount);
-*/
     libssh2_channel_free(channel);
     channel = NULL;
+    qDebug()<<"Enter Into "<<__FUNCTION__;
     return 0;
 }
 
 int QtSsh::waitSocket()
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     struct timeval timeout;
     int rc;
     fd_set fd;
@@ -276,12 +275,14 @@ int QtSsh::waitSocket()
 
 int QtSsh::setUsername(const char* name)
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     mUsername = name;
     return 0;
 }
 
 int QtSsh::setPasswd(const char *passwd)
 {
+    qDebug()<<"Enter Into "<<__FUNCTION__<<__LINE__;
     mPassword = passwd;
     return 0;
 }
